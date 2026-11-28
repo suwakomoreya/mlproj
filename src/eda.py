@@ -1,9 +1,15 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
 #load data
 df = pd.read_csv("data/hourly_consumption.csv", index_col="datetime", parse_dates=True)
 power = df["Global_active_power"]
+
+#missing hourly timetsamps
+expected = pd.date_range(start=power.index.min(),end=power.index.max(),freq="h")
+missing_hours = expected.difference(power.index)
+print("expected hourly observations",len(expected))
+print("available hourly observations", len(power))
+print("missing hours:", len(missing_hours))
 
 #distribution of consumption
 plt.figure(figsize=(10,5))
@@ -38,6 +44,8 @@ plt.grid()
 plt.tight_layout()
 plt.show()
 
+#restore missing timestamps as nan
+complete_power = power.reindex(expected)
 # prev hour vs current hour
 previous_hour = power.shift(1)
 plt.figure(figsize=(8,6))
